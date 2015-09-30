@@ -1,6 +1,11 @@
 <?php
 	//Loome ühenduse andmebaasiga
 	require_once("functions.php");
+	
+	//kui kasutaja on sisseloginud, suunan data.php lehele
+	if(isset($_SESSION["logged_in_user_id"])){
+		header("Location: data.php");
+	}
 
 	
 	//login.php
@@ -10,13 +15,13 @@
 	$password1_error = "";
 	$password2_error = "";
 	$password3_error ="";
-	$eesnimi_error ="";
-	$perekonnanimi_error ="";
+	$firstname_error ="";
+	$lastname_error ="";
 	//muutujad andmebaasi väärtuse jaoks
 	$email1 ="";
 	$email2 ="";
-	$eesnimi ="";
-	$perekonnanimi ="";
+	$firstname ="";
+	$lastname ="";
 	$password1 ="";
 	$password2 ="";
 	
@@ -39,8 +44,8 @@
 			//kontrollin, et parool ei ole tühi
 			if ( empty($_POST["password1"]) ) {
 				$password1_error = "See väli on kohustuslik";	
-			} else if(strlen($_POST["password1"]) < 8) {
-					$password1_error ="Peab olema vähemalt 8 sümbolit pikk!";
+			} else {
+				$password1 = test_input($_POST["password1"]);
 			}
 		//Võib kasutaja sisse logida
 			if($password1_error == "" && $email1_error == ""){
@@ -58,20 +63,20 @@
 		}elseif(isset($_POST['registreeri'])) {
 			
 			//kontrollin, et nimi pole tühi
-			if ( empty($_POST["eesnimi"]) ) {
-				$eesnimi_error = "See väli on kohustuslik";
+			if ( empty($_POST["firstname"]) ) {
+				$firstname_error = "See väli on kohustuslik";
 			}else{
 				//kõik korras, test_input eemaldab pahatahtlikud osad
-				$eesnimi = test_input($_POST["eesnimi"]);
+				$firstname = test_input($_POST["firstname"]);
 				}
 				
 				
-			// kontrollin et perekonnanimi pole tühi
-			if ( empty($_POST["perekonnanimi"]) ) {
-				$perekonnanimi_error = "See väli on kohustuslik";
+			// kontrollin et lastname pole tühi
+			if ( empty($_POST["lastname"]) ) {
+				$lastname_error = "See väli on kohustuslik";
 			}else{
 				//kõik korras, test_input eemaldab pahatahtlikud osad
-				$perekonnanimi = test_input($_POST["perekonnanimi"]);
+				$lastname = test_input($_POST["lastname"]);
 				}
 			
 			//kontrollin, et epost ei ole tühi
@@ -113,7 +118,7 @@
 				
 				//kasutaja loomise function, failist function.php
 				//saadame kaasa muutujad
-				createUser($email2, $hash);
+				createUser($firstname, $lastname, $email2, $hash);
 			}
 			
 				
@@ -126,10 +131,10 @@
 		$data = stripslashes($data);  //võtab ära tagurpidi kaldkriipsud
 		$data = htmlspecialchars($data);	//teeb htmli tekstiks, nt < läheb &lt
 		return $data;
-}
+	}
 	
 	
-	$mysqli->close();
+	
 ?>
 <html>
 
@@ -148,8 +153,8 @@
 	
 	<center><h2>Create user</h2></center>
 		<form action ="login.php" method="post">
-			<center><input type="text" name="eesnimi" value ="<?php echo $eesnimi ?>" placeholder="Eesnimi"><?php echo $eesnimi_error;?></center><br>
-			<center><input type="text" name="perekonnanimi" value ="<?php echo $perekonnanimi ?>" placeholder="Perekonnanimi"><?php echo $perekonnanimi_error;?></center><br>
+			<center><input type="text" name="firstname" value ="<?php echo $firstname ?>" placeholder="Eesnimi"><?php echo $firstname_error;?></center><br>
+			<center><input type="text" name="lastname" value ="<?php echo $lastname ?>" placeholder="Perekonnanimi"><?php echo $lastname_error;?></center><br>
 			<center><input name="email2" type="email" placeholder="E-post" value ="<?php echo $email2 ?>"><?php echo $email2_error; ?></center><br>
 			<center><input name="password2" type="password" placeholder="Parool"><br><?php echo $password2_error; ?></center><br>
 			<center><input name="password3" type="password" placeholder="Korda parooli"><?php echo $password3_error; ?></center><br><br>
