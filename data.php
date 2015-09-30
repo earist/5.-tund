@@ -1,0 +1,4 @@
+<?php
+//siia pääseb ligi sisseloginud kasutaja
+
+?>
