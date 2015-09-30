@@ -1,8 +1,7 @@
 <?php
+	//Loome Ã¼henduse andmebaasiga
+	require_once("functions.php");
 
-	require_once("../config.php");
-	$database = "if15_earis_3";
-	$mysqli = new mysqli($servername, $username, $password, $database);
 	
 	//login.php
 	
@@ -13,7 +12,7 @@
 	$password3_error ="";
 	$eesnimi_error ="";
 	$perekonnanimi_error ="";
-	//muutujad andmebaasi väärtuse jaoks
+	//muutujad andmebaasi vÃ¤Ã¤rtuse jaoks
 	$email1 ="";
 	$email2 ="";
 	$eesnimi ="";
@@ -29,43 +28,28 @@
 		if(isset($_POST['login'])){
 			
 			
-			//kontrollin, et epost ei ole tühi
+			//kontrollin, et epost ei ole tÃ¼hi
 			if ( empty($_POST["email1"]) ) {
-				$email1_error = "See väli on kohustuslik";
+				$email1_error = "See vÃ¤li on kohustuslik";
 			}else{
-				//kõik korras, test_input eemaldab pahatahtlikud osad
+				//kÃµik korras, test_input eemaldab pahatahtlikud osad
 				$email1 = test_input($_POST["email1"]);
 				}
 				
-			//kontrollin, et parool ei ole tühi
+			//kontrollin, et parool ei ole tÃ¼hi
 			if ( empty($_POST["password1"]) ) {
-				$password1_error = "See väli on kohustuslik";	
+				$password1_error = "See vÃ¤li on kohustuslik";	
 			} else if(strlen($_POST["password1"]) < 8) {
-					$password1_error ="Peab olema vähemalt 8 sümbolit pikk!";
+					$password1_error ="Peab olema vÃ¤hemalt 8 sÃ¼mbolit pikk!";
 			}
-		//Võib kasutaja sisse logida
+		//VÃµib kasutaja sisse logida
 			if($password1_error == "" && $email1_error == ""){
-				echo "Võib sisse logida! Kasutajanimi on ".$email1." ja parool on ".$password1;
+				echo "VÃµib sisse logida! Kasutajanimi on ".$email1." ja parool on ".$password1;
 				
 				$hash = hash("sha512", $password1);
-				$stmt = $mysqli->prepare("SELECT id, email FROM users WHERE email=? AND password=?");
-				$stmt->bind_param("ss", $email1, $hash);
 				
-				//muutujad tulemustele
-				$stmt->bind_result($id_from_db, $email_from_db);
-				$stmt->execute();
-				
-				//Kontrollin kas tulemusi leiti
-				if($stmt->fetch()){
-					//andmebaasis oli midagi
-					echo "Email ja parool õiged, kasutaja id=" .$id_from_db;
-		
-				}else{
-					//ei leidnud
-					echo "Wrong credentials";
-				}
-					
-				$stmt->close();
+				//kasutaja sisselogimise function,
+				loginUser($email1, $hash);
 			}
 			
 			
@@ -73,40 +57,40 @@
 			//keegi vajutas registreeri nuppu
 		}elseif(isset($_POST['registreeri'])) {
 			
-			//kontrollin, et nimi pole tühi
+			//kontrollin, et nimi pole tÃ¼hi
 			if ( empty($_POST["eesnimi"]) ) {
-				$eesnimi_error = "See väli on kohustuslik";
+				$eesnimi_error = "See vÃ¤li on kohustuslik";
 			}else{
-				//kõik korras, test_input eemaldab pahatahtlikud osad
+				//kÃµik korras, test_input eemaldab pahatahtlikud osad
 				$eesnimi = test_input($_POST["eesnimi"]);
 				}
 				
 				
-			// kontrollin et perekonnanimi pole tühi
+			// kontrollin et perekonnanimi pole tÃ¼hi
 			if ( empty($_POST["perekonnanimi"]) ) {
-				$perekonnanimi_error = "See väli on kohustuslik";
+				$perekonnanimi_error = "See vÃ¤li on kohustuslik";
 			}else{
-				//kõik korras, test_input eemaldab pahatahtlikud osad
+				//kÃµik korras, test_input eemaldab pahatahtlikud osad
 				$perekonnanimi = test_input($_POST["perekonnanimi"]);
 				}
 			
-			//kontrollin, et epost ei ole tühi
+			//kontrollin, et epost ei ole tÃ¼hi
 			if ( empty($_POST["email2"]) ) {
-				$email2_error = "See väli on kohustuslik";
+				$email2_error = "See vÃ¤li on kohustuslik";
 			}else{
-				//kõik korras, test_input eemaldab pahatahtlikud osad
+				//kÃµik korras, test_input eemaldab pahatahtlikud osad
 				$email2 = test_input($_POST["email2"]);
 				}
 				
 			
-			//kontrollin, et parool ei ole tühi
+			//kontrollin, et parool ei ole tÃ¼hi
 			if ( empty($_POST["password2"]) ) {
-				$password2_error = "See väli on kohustuslik";	
+				$password2_error = "See vÃ¤li on kohustuslik";	
 			} else {
 				
 				
 				if(strlen($_POST["password2"]) < 8) {
-					$password2_error ="Peab olema vähemalt 8 sümbolit pikk!";
+					$password2_error ="Peab olema vÃ¤hemalt 8 sÃ¼mbolit pikk!";
 				}else{
 					$password2 = test_input($_POST["password2"]);
 				}
@@ -122,19 +106,14 @@
 				
 			if(	$email2_error == "" && $password2_error == ""){
 				
-				//räsi paroolist, mille salvestame andmebaasi
+				//rÃ¤si paroolist, mille salvestame andmebaasi
 				$hash = hash("sha512", $password2);
 				
-				echo "Võib kasutajat luua! Kasutajanimi on ".$email2." ja parool on ".$password2. "ja räsi on ".$hash;
+				echo "VÃµib kasutajat luua! Kasutajanimi on ".$email2." ja parool on ".$password2. "ja rÃ¤si on ".$hash;
 				
-				$stmt = $mysqli->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
-				//echo $mysqli->error;
-				//echo $stmt->error;
-				
-				// asendame ?;? ss - s on string email, s on string password
-				$stmt->bind_param("ss", $email2, $hash);
-				$stmt->execute();
-				$stmt->close();
+				//kasutaja loomise function, failist function.php
+				//saadame kaasa muutujad
+				createUser($email2, $hash);
 			}
 			
 				
@@ -143,9 +122,9 @@
 		
 		
 	function test_input($data) {	
-		$data = trim($data);	//võtab ära tühikud,enterid,tabid
-		$data = stripslashes($data);  //võtab ära tagurpidi kaldkriipsud
-		$data = htmlspecialchars($data);	//teeb htmli tekstiks, nt < läheb &lt
+		$data = trim($data);	//vÃµtab Ã¤ra tÃ¼hikud,enterid,tabid
+		$data = stripslashes($data);  //vÃµtab Ã¤ra tagurpidi kaldkriipsud
+		$data = htmlspecialchars($data);	//teeb htmli tekstiks, nt < lÃ¤heb &lt
 		return $data;
 }
 	
