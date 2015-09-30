@@ -14,8 +14,9 @@
 	//võtame vastu kaks muutujat
 	function createUser($firstname, $lastname, $email2, $hash){
 		$mysqli = new mysqli($GLOBALS["servername"], $GLOBALS["server_username"], $GLOBALS["server_password"], $GLOBALS["database"]);
-		$stmt = $mysqli->prepare("INSERT INTO users (email, password, firstname, lastname) VALUES (?, ?, ?, ?)");
-		$stmt->bind_param("ss", $email2, $firstname, $lastname, $hash);
+		$stmt = $mysqli->prepare("INSERT INTO users2 (email, password, firstname, lastname) VALUES (?, ?, ?, ?)");
+		echo $mysqli->error;
+		$stmt->bind_param("ssss", $email2, $hash, $firstname, $lastname);
 		$stmt->execute();
 		$stmt->close();
 		$mysqli->close();
@@ -23,7 +24,7 @@
 	
 	function loginUser($email1, $hash){
 		$mysqli = new mysqli($GLOBALS["servername"], $GLOBALS["server_username"], $GLOBALS["server_password"], $GLOBALS["database"]);
-		$stmt = $mysqli->prepare("SELECT id, email FROM users WHERE email=? AND password=?");
+		$stmt = $mysqli->prepare("SELECT id, email FROM users2 WHERE email=? AND password=?");
 		$stmt->bind_param("ss", $email1, $hash);
 		$stmt->bind_result($id_from_db, $email_from_db);
 		$stmt->execute();
@@ -43,6 +44,14 @@
 		$stmt->close();
 		$mysqli->close();
 		
+	} 
+	function addCarPlate($number_plate, $color){
+		$mysqli = new mysqli($GLOBALS["servername"], $GLOBALS["server_username"], $GLOBALS["server_password"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("INSERT INTO car_plates (user_id, number_plate, color) VALUES (?, ?, ?)");
+		$stmt->bind_param("iss", $_SESSION["logged_in_user_id"],$number_plate, $color);
+		$stmt->execute();
+		$stmt->close();
+		$mysqli->close();
 	}
 
 ?>
